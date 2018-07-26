@@ -1,4 +1,4 @@
-# Run in python 2.7
+# Colormodels module does not work properly on python 3.6. Use 2.7.
 
 from colorpy import colormodels
 from math import cos, sin, pi
