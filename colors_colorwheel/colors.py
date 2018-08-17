@@ -1,7 +1,7 @@
 # Colormodels module does not work properly on python 3.6. Use 2.7.
 
 from colorpy import colormodels
-from math import cos, sin, pi
+from math import cos, sin, pi, ceil
 import csv
 
 sti_cols = []
@@ -24,21 +24,25 @@ for i in xrange(180):
         sti_cols.append(rgb*2-1)
 
 # Pick X colors at max distance (including 2 slightly jittered version of that color)
-no_colors = 6  # Number of colors
-jitter = 15  # how much jitter
+no_colors = 8  # Number of colors
+jitter = 12  # how much jitter
 
 exp_colors = []
-for i in range(0, 180, 180/no_colors):
-    if i-jitter<0:
-        k = 180-abs(i-jitter)
-        exp_colors.append(rgb_colors[k])
-        print(k)
+for i in range(0, 180, int(ceil(180.0/no_colors))):
+    # Left probe
+    if i - jitter < 0:
+        exp_colors.append(rgb_colors[180 - abs(i - jitter)])
     else:
-        exp_colors.append(rgb_colors[i-jitter])
+        exp_colors.append(rgb_colors[i - jitter])
+    # Middle probe
     exp_colors.append(rgb_colors[i])
-    exp_colors.append(rgb_colors[i+jitter])
+    # Right probe
+    if i + jitter > 180:
+        exp_colors.append(rgb_colors[i + jitter - 180])
+    else:
+        exp_colors.append(rgb_colors[i + jitter])
 
 print(exp_colors, len(exp_colors))
-with open('colors', 'wb') as output:
+with open('colors.csv', 'wb') as output:
     wr = csv.writer(output, lineterminator='\n')
     wr.writerows(exp_colors)
