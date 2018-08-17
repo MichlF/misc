@@ -23,9 +23,9 @@ for i in xrange(180):
     if i%15 == 0:
         sti_cols.append(rgb*2-1)
 
-# Pick six colors at max distance (including 2 slightly jittered version of that color)
-no_colors = 9  # Number of colors
-jitter = 10  # how much jitter
+# Pick X colors at max distance (including 2 slightly jittered version of that color)
+no_colors = 6  # Number of colors
+jitter = 15  # how much jitter
 
 exp_colors = []
 for i in range(0, 180, 180/no_colors):
