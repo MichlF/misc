@@ -35,10 +35,6 @@ pathBIDS = '/Users/michlf/NROST_working/fMRI_NROST/' #'/Users/michlf/Documents/G
 
 # Create directories
 if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is any subject data
-    # Load in the config file
-    with open('/Users/michlf/NROST_working/config.json') as f:
-        data = json.load(f)
-    pprint(data)
 
     # Some other preparations
     os.chdir(pathMRIdata)
@@ -74,7 +70,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             # Fmap and func from all runs including the localizer
             # B0 separation
             path2Original = pathMRIdata + folderlist[i] + '/' + [s for s in os.listdir(pathMRIdata+folderlist[i]) if "B0" in s and ".nii.gz" in s][0]
-            B0_separation.separation(path2Original, pathSubj+'/ses-{0}/fmap/'.format(sesIdx), nrSubj, 1)
+            B0_separation.separation(path2Original, pathSubj+'/ses-{0}/fmap/'.format(sesIdx), nrSubj, sesIdx)
             
             # EPI (fmap) and BOLD (func)
             path_intendedList = []
@@ -94,7 +90,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                         copyfile(path2Original, path2New)
                         # JSON
                         path_fmap_PAR = pathMRIdata + folderlist[i] + '/' + [s for s in os.listdir(pathMRIdata+folderlist[i]) if "{0}_bold_".format(runIdx) in s and ".PAR" in s][0]
-                        path_intended = '"func/' + 'sub-{0}_ses-{2}_task-NRoST_run-{1}_bold.nii.gz"'.format(nrSubj, runIdx, sesIdx)
+                        path_intended = '"ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_bold.nii.gz"'.format(nrSubj, runIdx, sesIdx)
                         path_fmap = path_fmapDir + 'sub-{0}_ses-{2}_dir-NR_run-{1}'.format(nrSubj, runIdx, sesIdx)
                     except:
                         print('runIdx {0} did not work for subject {1}. File missing?'.format(runIdx,nrSubj))
@@ -112,7 +108,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                         copyfile(path2Original, path2New)
                         # JSON
                         path_fmap_PAR = pathMRIdata + folderlist[i] + '/' + [s for s in os.listdir(pathMRIdata+folderlist[i]) if "{0}-bold_".format('Local') in s and ".PAR" in s][0]
-                        path_intended = '"func/' + 'sub-{0}_ses-{2}_task-Localizer_run-{1}_bold.nii.gz"'.format(nrSubj, runIdx, sesIdx)
+                        path_intended = '"ses-{2}/func/sub-{0}_ses-{2}_task-Localizer_run-{1}_bold.nii.gz"'.format(nrSubj, runIdx, sesIdx)
                         path_fmap = path_fmapDir + 'sub-{0}_ses-{2}_dir-NR_run-{1}'.format(nrSubj, runIdx, sesIdx)
                     except:
                         print('Localizer run did not work. File missing?')
@@ -122,11 +118,13 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                 try:
                     wfs = ees_function.readWfs(path_fmap_PAR)
                     print('water fat shift for run {0}: {1} px'.format(runIdx, wfs))
-                    EES = ees_function.calculateEES(path_fmap+'_epi.nii.gz', wfs)
+                    EES = ees_function.calculateParameters(path_fmap+'_epi.nii.gz', waterFatShift=wfs)
+                    totalReadoutTime = ees_function.calculateParameters(path_fmap+'_epi.nii.gz', effectiveEchoSpacing=EES)
                     File = open(path_fmap + '_epi.json', 'w')
                     File.write(''.join('{')+ '\n')
                     File.write(''.join('    "PhaseEncodingDirection": "j-",')+ '\n')
-                    File.write(''.join('    "TotalReadoutTime": ' + '{0}'.format(EES) +',')+ '\n')
+                    File.write(''.join('    "EffectiveEchoSpacing": ' + '{0}'.format(EES) +',')+ '\n')
+                    File.write(''.join('    "TotalReadoutTime": ' + '{0}'.format(totalReadoutTime) +',')+ '\n')
                     File.write(''.join('    "IntendedFor": [' + path_intended + ']')+ '\n')
                     File.write(''.join('}')+ '\n')
                     File.close()
@@ -168,7 +166,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                 df_final = df.truncate(before=(runIdx-1)*no_trialsBlock, after=no_trialsBlock-1+((runIdx-1)*no_trialsBlock))
                 if int(nrSubj) < 7: # One TR at the end of the first trial of each run is missing
                     df_final['onset'] = [round(num * time_trial + time_beginMemEvent - 0.7, 2) for num in range(no_trialsBlock)] # adjust all onsets by removing 1 TR
-                    df_final['onset'][time_beginMemEvent] = 10.5 # change the first onset
+                    df_final.iloc[0, df_final.columns.get_loc('onset')] = 10.5 # change the first onset
                 else:
                     df_final['onset'] = [round(num * time_trial + time_beginMemEvent, 2) for num in range(no_trialsBlock)]
                 # Save

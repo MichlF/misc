@@ -44,11 +44,21 @@ def readWfs(pathIN):
 
 	return waterFatShift
 
-def calculateEES(pathIN, waterFatShift):
-	in_meta = {'WaterFatShift': waterFatShift,
-			   'MagneticFieldStrength': 3,
-			   'PhaseEncodingDirection': 'j-',
-			   'ParallelReductionFactorInPlane': 1.5}
+def calculateParameters(pathIN, waterFatShift = False, effectiveEchoSpacing = False):
+	if waterFatShift and effectiveEchoSpacing:
+		raise Exception('Do not provide both, Water Fat Shift and Effective Echo Spacing!')
+	elif waterFatShift:
+		in_meta = {'WaterFatShift': waterFatShift,
+				'MagneticFieldStrength': 3,
+				'PhaseEncodingDirection': 'j-',
+				'ParallelReductionFactorInPlane': 1.5}
+	elif effectiveEchoSpacing:
+		in_meta = {'EffectiveEchoSpacing': effectiveEchoSpacing,
+				'MagneticFieldStrength': 3,
+				'PhaseEncodingDirection': 'j-',
+				'ParallelReductionFactorInPlane': 1.5}
+	else:
+		print('Did not calculate anything...')
 	return get_ees(in_meta, pathIN)
 
 # For manuell call, not function call
