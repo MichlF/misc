@@ -23,7 +23,9 @@ no_trialsBlock = 24
 time_memEvent = 7.7
 time_beginMemEvent = 10.5
 time_trial = 19.6
-construct = False
+
+# What to do?
+construct = True
 behavior = True
 
 # Paths
@@ -133,7 +135,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                     print('JSON did not work. File missing?')
 
             # Phasediff (only needed once, so out of the loop)
-            File = open(path_fmapDir + 'sub-{0}_phasediff.json'.format(nrSubj), 'w')
+            File = open(path_fmapDir + 'sub-{0}_ses-{1}_phasediff.json'.format(nrSubj, sesIdx), 'w')
             File.write(''.join('{')+ '\n')
             File.write(''.join('    "EchoTime1": 0.003,')+ '\n')
             File.write(''.join('    "EchoTime2": 0.008,')+ '\n')
@@ -162,9 +164,13 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             df['condition'] = df['cond_template'].map(str) + '-' + df['cond_category']
             # Now, chop up the file in individual runs
             for runIdx in range(1,nrRuns):
-                # Cut
+                # Cut the runs
                 df_final = df.truncate(before=(runIdx-1)*no_trialsBlock, after=no_trialsBlock-1+((runIdx-1)*no_trialsBlock))
-                df_final['onset'] = [round(num * time_trial + time_beginMemEvent, 2) for num in range(no_trialsBlock)]
+                if int(nrSubj) < 7: # One TR at the end of the first trial of each run is missing
+                    df_final['onset'] = [round(num * time_trial + time_beginMemEvent - 0.7, 2) for num in range(no_trialsBlock)] # adjust all onsets by removing 1 TR
+                    df_final['onset'][time_beginMemEvent] = 10.5 # change the first onset
+                else:
+                    df_final['onset'] = [round(num * time_trial + time_beginMemEvent, 2) for num in range(no_trialsBlock)]
                 # Save
                 path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_events.tsv'.format(nrSubj, runIdx, sesIdx)
                 df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'condition', 'cond_categoryNontemplate'], 
@@ -172,8 +178,8 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             # Localizer run (still to do)
             pass
 
-            # note that there is an extra column in pp1-6 and the subjects are not ordered!
-            # THE ONSET times OF THE FIRST SIX SUBJECTS ARE DIFFERENT compared to the rest!!!
+            ###### note that there is an extra column in pp1-6 and the subjects are not ordered!
+            ###### THE ONSET times OF THE FIRST SIX SUBJECTS ARE DIFFERENT compared to the rest!!!
 
             ### Other code (still to do)
             pass
