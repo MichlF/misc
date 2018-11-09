@@ -1,5 +1,13 @@
 '''
-This script reads 
+This script 
+- ...reads in nii files from some folder and reformats them into the BIDS format...:
+- ...creates JSON files
+- ...reads in behavioral .csv files from OpenSesame and creates .tsv event files.
+
+In the future it will also be able to...:
+- ...read in and format eye tracking data
+- ...read in and format physiology data
+
 @Michel Failing, 2018
 '''
 
