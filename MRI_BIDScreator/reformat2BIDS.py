@@ -1,9 +1,9 @@
 '''
-Some doc string
+This script reads 
 @Michel Failing, 2018
 '''
 
-import os, re, json, pandas, B0_separation, ees_function
+import os, subprocess, re, json, pandas, B0_separation, ees_function
 import nibabel as nb
 from shutil import copyfile
 from pprint import pprint
@@ -26,6 +26,7 @@ time_beginMemEvent = 10.5
 time_trial = 19.6
 
 # What to do?
+parrec2nii = True
 construct = True
 behavior = True
 fixNiftiHeader = True
@@ -35,7 +36,16 @@ pathBEHdata = '/Users/michlf/Dropbox/Work/Data/fMRI/NegativeTemplate/forScanner/
 pathMRIdata = '/Users/michlf/NROST_working/' 
 pathBIDS = '/Users/michlf/NROST_working/fMRI_NROST/' #'/Users/michlf/Documents/GitHub/fMRI_NRoST
 
-# Create directories
+# Start reformatting
+# Implement parrec2nii (Does not work yet...)
+if parrec2nii:
+    pass
+    #p = subprocess.Popen(['parrec2nii', '-c', '*.PAR'], cwd=pathMRIdata)
+    #os.system("cd {0}".format(pathMRIdata))
+    #os.system('ls')
+    #os.system('parrec2nii -c *.PAR')
+
+# Reformat
 if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is any subject data
 
     # Some other preparations
