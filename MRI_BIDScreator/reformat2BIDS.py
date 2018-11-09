@@ -4,6 +4,7 @@ Some doc string
 '''
 
 import os, re, json, pandas, B0_separation, ees_function
+import nibabel as nb
 from shutil import copyfile
 from pprint import pprint
 
@@ -27,6 +28,7 @@ time_trial = 19.6
 # What to do?
 construct = True
 behavior = True
+fixNiftiHeader = True
 
 # Paths
 pathBEHdata = '/Users/michlf/Dropbox/Work/Data/fMRI/NegativeTemplate/forScanner/mri/beh'
@@ -88,11 +90,17 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                         path2Original = pathMRIdata + folderlist[i] + '/' + [s for s in os.listdir(pathMRIdata+folderlist[i]) if "{0}_bold_".format(runIdx) in s and ".nii.gz" in s][0]
                         path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_bold.nii.gz'.format(nrSubj, runIdx, sesIdx)
                         copyfile(path2Original, path2New)
+                        # Fix nifti header
+                        if fixNiftiHeader: # BIDS validator throws an error because the time units of the repetition time are in ms rather than in s (seconds is standard for the JSON)
+                            fixed = nb.load(path2New)
+                            fixed.header.set_xyzt_units(8) # It is on 18...
+                            nb.save(fixed, path2New)
                         # JSON
                         path_fmap_PAR = pathMRIdata + folderlist[i] + '/' + [s for s in os.listdir(pathMRIdata+folderlist[i]) if "{0}_bold_".format(runIdx) in s and ".PAR" in s][0]
                         path_intended = '"ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_bold.nii.gz"'.format(nrSubj, runIdx, sesIdx)
                         path_fmap = path_fmapDir + 'sub-{0}_ses-{2}_dir-NR_run-{1}'.format(nrSubj, runIdx, sesIdx)
-                    except:
+                    except Exception as e:
+                        print('Error message:  ', e)
                         print('runIdx {0} did not work for subject {1}. File missing?'.format(runIdx,nrSubj))
 
                 # Localizer
@@ -106,11 +114,17 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                         path2Original = pathMRIdata + folderlist[i] + '/' + [s for s in os.listdir(pathMRIdata+folderlist[i]) if "{0}-bold_".format('Local') in s and ".nii.gz" in s][0]
                         path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-Localizer_run-{1}_bold.nii.gz'.format(nrSubj, runIdx, sesIdx)
                         copyfile(path2Original, path2New)
+                        # Fix nifti header
+                        if fixNiftiHeader: # BIDS validator throws an error because the time units of the repetition time are in ms rather than in s (seconds is standard for the JSON)
+                            fixed = nb.load(path2New)
+                            fixed.header.set_xyzt_units(8) # It is on 18...
+                            nb.save(fixed, path2New)
                         # JSON
                         path_fmap_PAR = pathMRIdata + folderlist[i] + '/' + [s for s in os.listdir(pathMRIdata+folderlist[i]) if "{0}-bold_".format('Local') in s and ".PAR" in s][0]
                         path_intended = '"ses-{2}/func/sub-{0}_ses-{2}_task-Localizer_run-{1}_bold.nii.gz"'.format(nrSubj, runIdx, sesIdx)
                         path_fmap = path_fmapDir + 'sub-{0}_ses-{2}_dir-NR_run-{1}'.format(nrSubj, runIdx, sesIdx)
-                    except:
+                    except Exception as e:
+                        print('Error message:  ', e)
                         print('Localizer run did not work. File missing?')
 
             ### JSON files
