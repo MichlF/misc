@@ -131,7 +131,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                 # Individual EPIs (for each run incl. localizer)
                 try:
                     wfs = ees_function.readWfs(path_fmap_PAR)
-                    print('water fat shift for run {0}: {1} px'.format(runIdx, wfs))
+                    print('wfs for run {0}: {1} px'.format(runIdx, wfs))
                     EES = ees_function.calculateParameters(path_fmap+'_epi.nii.gz', waterFatShift=wfs)
                     totalReadoutTime = ees_function.calculateParameters(path_fmap+'_epi.nii.gz', effectiveEchoSpacing=EES)
                     File = open(path_fmap + '_epi.json', 'w')
@@ -143,7 +143,8 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                     File.write(''.join('}')+ '\n')
                     File.close()
                     path_intendedList.append(path_intended) # save for phase difference JSON
-                except:
+                except Exception as e:
+                    print('Error message:  ', e)
                     print('JSON did not work. File missing?')
 
             # Phasediff (only needed once, so out of the loop)
@@ -189,9 +190,6 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                 header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate'], index=False)
             # Localizer run (still to do)
             pass
-
-            ###### note that there is an extra column in pp1-6 and the subjects are not ordered!
-            ###### THE ONSET times OF THE FIRST SIX SUBJECTS ARE DIFFERENT compared to the rest!!!
 
             ### Other code (still to do)
             pass
