@@ -1,12 +1,13 @@
 '''
-This script 
-- ...reads in nii files from some folder and reformats them into the BIDS format...:
-- ...creates JSON files
+This script ...
+- ...reads in nii files from some folder and reformats them into the BIDS format.
+- ...creates JSON files for .epi files.
 - ...reads in behavioral .csv files from OpenSesame and creates .tsv event files.
 
-In the future it will also be able to...:
-- ...read in and format eye tracking data
-- ...read in and format physiology data
+In the future it will also be able to ...
+- ...create dataset_description.json and task jsons.
+- ...read in and format eye tracking data.
+- ...read in and format physiology data.
 
 @Michel Failing, 2018
 '''
@@ -61,6 +62,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
     folderlist = os.listdir(pathMRIdata)
     folderlist.sort()
     folderCreator(pathBIDS+'code/')
+    folderCreator(pathBIDS+'derivatives/')
 
     # Create folder structure for any subject found
     subList = []
