@@ -17,11 +17,12 @@ module load python # load python
 pip install --user nistats # install specific package
 
 ### 3 ###
+
 ## We can simply copy&paste the following after starting up python
 
 import os
 
-subjects = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 16, 18]
+subjects = [1]
 
 batch_string = """# shell for the job:
 #PBS -S /bin/bash
@@ -32,7 +33,7 @@ batch_string = """# shell for the job:
 echo "Job $PBS_JOBID started at `date`" | mail $USER -s "Job $PBS_JOBID"
 
 PYTHONPATH="" singularity run /home/mfailing/poldracklab_fmriprep_latest-2018-06-07-3b37987ebff2.img \
-                /home/mfailing/fMRI_NRosT/ /home/mfailing/fMRI_NRosT/derivatives participant \
+                /home/mfailing/fMRI_NRosT/BIDS /home/mfailing/fMRI_NRosT/BIDS/derivatives participant \
                 --participant-label sub-SJ_NR --output-space T1w template fsaverage6 fsaverage5 --nthreads 15 --omp-nthreads 15 --use-syn-sdc --low-mem \
                 --fs-license-file /home/mfailing/bin/freesurfer/license.txt -w /scratch
 
@@ -53,3 +54,11 @@ for subject in subjects:
     print('submitting ' + js_name + ' to queue')
     print(working_string)
     os.system('qsub ' + js_name)
+
+
+
+
+    # Check job queue
+    showq -u mfailing
+    # Inspect job
+    pbs_jobmonitor [jobid] [nodeid]
