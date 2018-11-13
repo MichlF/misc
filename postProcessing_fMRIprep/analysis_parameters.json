@@ -1,8 +1,8 @@
 {
-    "fmriprep_directory": "/Users/michlf/surfsara/fMRI_NRoST/pilot/fMRI_NRosT/derivatives/fmriprep/",
-    "output_directory": "/Users/michlf/surfsara/fMRI_NRoST/pilot/fMRI_NRosT/derivatives/fmriprep_2/",
-    "bids_directory": "/Users/michlf/surfsara/fMRI_NRoST/pilot/fMRI_NRosT/",
-    "mask_directory": "/Users/michlf/surfsara/fMRI_NRoST/ROIs/",
+    "fmriprep_directory": "/home/mfailing/fMRI_NRoST/derivatives/fmriprep/",
+    "output_directory": "/home/mfailing/fMRI_NRoST/derivatives/fmriprep_2/",
+    "bids_directory": "/home/mfailing/fMRI_NRoST/",
+    "mask_directory": "/home/mfailing/fMRI_NRoST/ROIs/",
     "EchoTime": 0.0300,
     "EchoTimeDifference": 0.005,
     "EpiFactor": 53,
