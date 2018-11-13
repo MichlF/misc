@@ -33,7 +33,7 @@ batch_string = """# shell for the job:
 echo "Job $PBS_JOBID started at `date`" | mail $USER -s "Job $PBS_JOBID"
 
 PYTHONPATH="" singularity run /home/mfailing/poldracklab_fmriprep_latest-2018-06-07-3b37987ebff2.img \
-                /home/mfailing/fMRI_NRosT/BIDS /home/mfailing/fMRI_NRosT/BIDS/derivatives participant \
+                /home/mfailing/fMRI_NRoST/BIDS /home/mfailing/fMRI_NRoST/BIDS/derivatives participant \
                 --participant-label sub-SJ_NR --output-space T1w template fsaverage6 fsaverage5 --nthreads 15 --omp-nthreads 15 --use-syn-sdc --low-mem \
                 --fs-license-file /home/mfailing/bin/freesurfer/license.txt -w /scratch
 
@@ -58,7 +58,7 @@ for subject in subjects:
 
 
 
-    # Check job queue
-    showq -u mfailing
-    # Inspect job
-    pbs_jobmonitor [jobid] [nodeid]
+# Check job queue
+showq -u mfailing
+# Inspect job
+pbs_jobmonitor [jobid] [nodeid]
