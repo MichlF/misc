@@ -1,0 +1,255 @@
+{
+    "groups": [
+        {
+            "name": "Group_00001",
+            "procs": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14
+            ],
+            "total": 15
+        }
+    ],
+    "links": [
+        {
+            "source": 7,
+            "target": 12,
+            "value": 1
+        },
+        {
+            "source": 4,
+            "target": 12,
+            "value": 1
+        },
+        {
+            "source": 10,
+            "target": 12,
+            "value": 1
+        },
+        {
+            "source": 6,
+            "target": 7,
+            "value": 1
+        },
+        {
+            "source": 4,
+            "target": 7,
+            "value": 1
+        },
+        {
+            "source": 6,
+            "target": 10,
+            "value": 1
+        },
+        {
+            "source": 9,
+            "target": 10,
+            "value": 1
+        },
+        {
+            "source": 2,
+            "target": 5,
+            "value": 1
+        },
+        {
+            "source": 5,
+            "target": 6,
+            "value": 1
+        },
+        {
+            "source": 0,
+            "target": 3,
+            "value": 1
+        },
+        {
+            "source": 2,
+            "target": 3,
+            "value": 1
+        },
+        {
+            "source": 10,
+            "target": 11,
+            "value": 1
+        },
+        {
+            "source": 3,
+            "target": 11,
+            "value": 1
+        },
+        {
+            "source": 8,
+            "target": 9,
+            "value": 1
+        },
+        {
+            "source": 12,
+            "target": 14,
+            "value": 1
+        },
+        {
+            "source": 4,
+            "target": 14,
+            "value": 1
+        },
+        {
+            "source": 3,
+            "target": 14,
+            "value": 1
+        },
+        {
+            "source": 3,
+            "target": 4,
+            "value": 1
+        },
+        {
+            "source": 12,
+            "target": 13,
+            "value": 1
+        },
+        {
+            "source": 1,
+            "target": 13,
+            "value": 1
+        },
+        {
+            "source": 11,
+            "target": 13,
+            "value": 1
+        },
+        {
+            "source": 6,
+            "target": 13,
+            "value": 1
+        },
+        {
+            "source": 3,
+            "target": 13,
+            "value": 1
+        },
+        {
+            "source": 9,
+            "target": 13,
+            "value": 1
+        },
+        {
+            "source": 5,
+            "target": 13,
+            "value": 1
+        },
+        {
+            "source": 4,
+            "target": 13,
+            "value": 1
+        },
+        {
+            "source": 10,
+            "target": 13,
+            "value": 1
+        }
+    ],
+    "maxN": 15,
+    "nodes": [
+        {
+            "group": 1,
+            "name": "0_MaskGrabber",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmplCKztF/VWM-anti/MaskGrabber/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmplCKztF/VWM-anti/MaskGrabber/result_MaskGrabber.pklz"
+        },
+        {
+            "group": 1,
+            "name": "1_BIDSEventsGrabber",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpphDoou/VWM-anti/BIDSEventsGrabber/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpphDoou/VWM-anti/BIDSEventsGrabber/result_BIDSEventsGrabber.pklz"
+        },
+        {
+            "group": 1,
+            "name": "2_BIDSNiiGrabber",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpdfiBtl/VWM-anti/BIDSNiiGrabber/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpdfiBtl/VWM-anti/BIDSNiiGrabber/result_BIDSNiiGrabber.pklz"
+        },
+        {
+            "group": 1,
+            "name": "3_roi_resampler",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmp0LfE4Q/VWM-anti/roi_resampler/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmp0LfE4Q/VWM-anti/roi_resampler/result_roi_resampler.pklz"
+        },
+        {
+            "group": 1,
+            "name": "4_thresh",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpL4w4gR/VWM-anti/thresh/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpL4w4gR/VWM-anti/thresh/result_thresh.pklz"
+        },
+        {
+            "group": 1,
+            "name": "5_sgfilter",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpblwg2x/VWM-anti/sgfilter/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpblwg2x/VWM-anti/sgfilter/result_sgfilter.pklz"
+        },
+        {
+            "group": 1,
+            "name": "6_percent_signal_change",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpPuQfDa/VWM-anti/percent_signal_change/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpPuQfDa/VWM-anti/percent_signal_change/result_percent_signal_change.pklz"
+        },
+        {
+            "group": 1,
+            "name": "7_hdf5_psc_masker",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpc3RYey/VWM-anti/hdf5_psc_masker/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpc3RYey/VWM-anti/hdf5_psc_masker/result_hdf5_psc_masker.pklz"
+        },
+        {
+            "group": 1,
+            "name": "8_BIDSConfoundsGrabber",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpAlCfKm/VWM-anti/BIDSConfoundsGrabber/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpAlCfKm/VWM-anti/BIDSConfoundsGrabber/result_BIDSConfoundsGrabber.pklz"
+        },
+        {
+            "group": 1,
+            "name": "9_sgfilter_confounds",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpfnO7Fv/VWM-anti/sgfilter_confounds/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpfnO7Fv/VWM-anti/sgfilter_confounds/result_sgfilter_confounds.pklz"
+        },
+        {
+            "group": 1,
+            "name": "10_nistats_confound_glm",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpbPUJ_6/VWM-anti/nistats_confound_glm/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpbPUJ_6/VWM-anti/nistats_confound_glm/result_nistats_confound_glm.pklz"
+        },
+        {
+            "group": 1,
+            "name": "11_tsv_masker",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpjfWikX/VWM-anti/tsv_masker/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpjfWikX/VWM-anti/tsv_masker/result_tsv_masker.pklz"
+        },
+        {
+            "group": 1,
+            "name": "12_hdf5_psc_nuis_masker",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpOUp5RI/VWM-anti/hdf5_psc_nuis_masker/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpOUp5RI/VWM-anti/hdf5_psc_nuis_masker/result_hdf5_psc_nuis_masker.pklz"
+        },
+        {
+            "group": 1,
+            "name": "13_sinker",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpL9mq9W/VWM-anti/sinker/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpL9mq9W/VWM-anti/sinker/result_sinker.pklz"
+        },
+        {
+            "group": 1,
+            "name": "14_hdf5_roi_masker",
+            "report": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpwPuM_8/VWM-anti/hdf5_roi_masker/_report/report.rst",
+            "result": "/private/var/folders/hv/htgp9mjj3sz97c_lh0cpryvw0000gn/T/tmpwPuM_8/VWM-anti/hdf5_roi_masker/result_hdf5_roi_masker.pklz"
+        }
+    ]
+}

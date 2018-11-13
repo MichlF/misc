@@ -1,0 +1,130 @@
+[
+    {
+        "group": 1,
+        "imports": [],
+        "name": "00_MaskGrabber",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [],
+        "name": "01_BIDSEventsGrabber",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [],
+        "name": "02_BIDSNiiGrabber",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [
+            "00_MaskGrabber",
+            "02_BIDSNiiGrabber"
+        ],
+        "name": "03_roi_resampler",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [
+            "03_roi_resampler"
+        ],
+        "name": "04_thresh",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [
+            "02_BIDSNiiGrabber"
+        ],
+        "name": "05_sgfilter",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [
+            "05_sgfilter"
+        ],
+        "name": "06_percent_signal_change",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [
+            "06_percent_signal_change",
+            "04_thresh"
+        ],
+        "name": "07_hdf5_psc_masker",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [],
+        "name": "08_BIDSConfoundsGrabber",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [
+            "08_BIDSConfoundsGrabber"
+        ],
+        "name": "09_sgfilter_confounds",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [
+            "06_percent_signal_change",
+            "09_sgfilter_confounds"
+        ],
+        "name": "10_nistats_confound_glm",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [
+            "10_nistats_confound_glm",
+            "03_roi_resampler"
+        ],
+        "name": "11_tsv_masker",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [
+            "07_hdf5_psc_masker",
+            "04_thresh",
+            "10_nistats_confound_glm"
+        ],
+        "name": "12_hdf5_psc_nuis_masker",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [
+            "12_hdf5_psc_nuis_masker",
+            "01_BIDSEventsGrabber",
+            "11_tsv_masker",
+            "06_percent_signal_change",
+            "03_roi_resampler",
+            "09_sgfilter_confounds",
+            "05_sgfilter",
+            "04_thresh",
+            "10_nistats_confound_glm"
+        ],
+        "name": "13_sinker",
+        "size": 1
+    },
+    {
+        "group": 1,
+        "imports": [
+            "12_hdf5_psc_nuis_masker",
+            "04_thresh",
+            "03_roi_resampler"
+        ],
+        "name": "14_hdf5_roi_masker",
+        "size": 1
+    }
+]
