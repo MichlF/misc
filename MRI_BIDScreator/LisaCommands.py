@@ -22,12 +22,12 @@ pip install --user nistats # install specific package
 
 import os
 
-subjects = [1]
+subjects = [2]
 
 batch_string = """# shell for the job:
 #PBS -S /bin/bash
 #PBS -lwalltime=100:00:00 -lnodes=1:mem64gb
-# job requires at most 10 hours, 0 minutes
+# job requires at most 100 hours, 0 minutes
 #     and 0 seconds wallclock time
 # call the programs
 echo "Job $PBS_JOBID started at `date`" | mail $USER -s "Job $PBS_JOBID"
