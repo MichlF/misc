@@ -12,11 +12,14 @@ In the future it will also be able to ...
 @Michel Failing, 2018
 '''
 
-import os, subprocess, re, json, pandas, B0_separation, ees_function
+# Import
+import os, subprocess, re, json, B0_separation, ees_function
 import nibabel as nb
+import pandas as pd
 from shutil import copyfile
 from pprint import pprint
 
+# Some helper functions
 def folderCreator(path):
     try:
         os.makedirs(path)
@@ -33,12 +36,13 @@ no_trialsBlock = 24
 time_memEvent = 7.7
 time_beginMemEvent = 10.5
 time_trial = 19.6
+time_trialLoc = .250
 
 # What to do?
-parrec2nii = True
-construct = True
+parrec2nii = False
+construct = False
+fixNiftiHeader = False
 behavior = True
-fixNiftiHeader = True
 
 # Paths
 pathBEHdata = '/Users/michlf/Dropbox/Work/Data/fMRI/NegativeTemplate/forScanner/mri/beh'
@@ -46,7 +50,7 @@ pathMRIdata = '/Users/michlf/NROST_working/'
 pathBIDS = '/Users/michlf/NROST_working/fMRI_NROST/' #'/Users/michlf/Documents/GitHub/fMRI_NRoST
 
 # Start reformatting
-# Implement parrec2nii (Does not work yet...)
+# Implement parrec2nii (still to do...)
 if parrec2nii:
     pass
     #p = subprocess.Popen(['parrec2nii', '-c', '*.PAR'], cwd=pathMRIdata)
@@ -72,14 +76,14 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             nrSubj = folderlist[i].split("sub-",1)[1]
             print('\n...running subject {0}...\n'.format(nrSubj))
         except:
-            continue # if another file, move on to next iteration
+            continue # if not a subject folder, move on to next iteration
         pathSubj = pathBIDS + 'sub-' + nrSubj
         folderCreator(pathSubj+'/ses-{0}/anat/'.format(sesIdx))
         folderCreator(pathSubj+'/ses-{0}/func/'.format(sesIdx))
         folderCreator(pathSubj+'/ses-{0}/fmap/'.format(sesIdx))
         folderCreator(pathSubj+'/ses-{0}/beh/'.format(sesIdx))
 
-        ### Construct name, then copy and rename files
+        ### Construct name, then copy and rename files ###
         if construct:
             # Anatomy (T1w, T2)
             path2Original = pathMRIdata + folderlist[i] + '/' + [s for s in os.listdir(pathMRIdata+folderlist[i]) if "_3DT1w" in s and ".nii.gz" in s][0]
@@ -147,7 +151,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                         print('Error message:  ', e)
                         print('Localizer run did not work. File missing?')
 
-            ### JSON files
+            ### JSON files ###
                 # Individual EPIs (for each run incl. localizer)
                 try:
                     wfs = ees_function.readWfs(path_fmap_PAR)
@@ -182,15 +186,15 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             File.write(''.join('}')+ '\n')
             File.close()
 
-        ### Physiology (still to do)
+        ### Physiology (still to do) ###
         pass
 
-        ### Behavior
+        ### Behavior ###
         if behavior:
-            # Experimental run
+            # Experimental run(s)
             path2Original = pathBEHdata + '/' + [s for s in os.listdir(pathBEHdata) if "subject-{0}_".format(int(nrSubj)) in s and ".csv" in s][0]
-            df = pandas.read_csv(path2Original)
-            # Load beh and create/change a few variables to comply with BIDS
+            df = pd.read_csv(path2Original)
+            # Create/change a few variables to comply with BIDS
             df['duration'] = time_memEvent
             df['trial_type'] = 'memory'
             df['responseTime'] = round(df['responseTime'])
@@ -208,8 +212,20 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                 path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_events.tsv'.format(nrSubj, runIdx, sesIdx)
                 df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'condition', 'cond_categoryNontemplate'], 
                 header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate'], index=False)
-            # Localizer run (still to do)
-            pass
 
-            ### Other code (still to do)
-            pass
+            # Localizer(s)
+            path2Original = pathBEHdata + '/' + [s for s in os.listdir(pathBEHdata) if "subject-{0}loc_".format(int(nrSubj)) in s and ".csv" in s][0]
+            df = pd.read_csv(path2Original)
+            # Construct a dataframe for the events.tsv file
+            df_final = pd.DataFrame(columns=['onset','duration','trial_type'])
+            trialTypes = re.sub("[']", '', df['pathsFulllist'][0])
+            trialTypes = trialTypes[1:-1].split(", ")
+            test=re.sub("[']", '', df['exemplarOrderFulllist'][0])
+            test=test[1:-1].split(", ")
+            print(test, len(test), type(test), test[40], 'bla', test[39])
+            df_final['onset'] = [num * time_trialLoc*2 + time_beginMemEvent for num in range(len(trialTypes))]
+            df_final['duration'] = time_trialLoc
+            df_final['trial_type'] = [trialTypes[trial] for trial in range(len(trialTypes))]
+            # Save
+            path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-Localizer_run-{1}_events.tsv'.format(nrSubj, nrRuns, sesIdx)
+            df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type'], index=False)
