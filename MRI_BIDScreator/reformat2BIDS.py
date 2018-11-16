@@ -217,12 +217,40 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             path2Original = pathBEHdata + '/' + [s for s in os.listdir(pathBEHdata) if "subject-{0}loc_".format(int(nrSubj)) in s and ".csv" in s][0]
             df = pd.read_csv(path2Original)
             # Construct a dataframe for the events.tsv file
-            df_final = pd.DataFrame(columns=['onset','duration','trial_type'])
-            trialTypes = re.sub("[']", '', df['pathsFulllist'][0])
-            trialTypes = trialTypes[1:-1].split(", ")
-            test=re.sub("[']", '', df['exemplarOrderFulllist'][0])
-            test=test[1:-1].split(", ")
-            print(test, len(test), type(test), test[40], 'bla', test[39])
+            df_final = pd.DataFrame(columns=['onset','duration','trial_type','exemplarOrderFulllist', 'cond_order', 'block_list'])
+            if (int(nrSubj)<17 and int(nrSubj)!=14) or int(nrSubj)==18: # convenience function logged incorrectly in these subjects, so we will have to do it manually
+                # Clean variable strings
+                block_list = re.sub("[']", '', df['block_list'][0])
+                block_list = block_list[1:-1].split(", ")
+                while 'fix' in block_list: block_list.remove('fix')
+                cond_order = df['cond_order'][0].split(", ")
+                exemplar_order = re.sub("[']", '', df['exemplarOrderFulllist'][0])
+                exemplar_order = exemplar_order[1:-1].split(", ")
+                while '99' in exemplar_order: exemplar_order.remove('99')
+                while '[99' in exemplar_order: exemplar_order.remove('[99')
+                while '99]' in exemplar_order: exemplar_order.remove('99]')
+
+                # Loop through the trial to create master string and then construct the vector
+                idx,idx2,trialTypes = 0,0,[]
+                for block in range(len(block_list)):
+                    strCond = block_list[block]
+                    for cond in range(2):
+                        if 'intact' in cond_order[idx]:
+                            strBlock = 'Real'
+                        else:
+                            strBlock = 'Scram'
+                        idx+=1
+                        for trial in range(20):
+                            exemplar_order[idx2] = exemplar_order[idx2].replace('[','')
+                            exemplar_order[idx2] = exemplar_order[idx2].replace(']','')
+                            strTrial = str(int(exemplar_order[idx2])+1)
+                            trialTypes.append(strCond+strBlock+strTrial)
+                            idx2+=1
+                # Now add fixation sequences
+                trialTypes = 40*['fix']+trialTypes[:120]+40*['fix']+trialTypes[120:240]+40*['fix']+trialTypes[240:360]+40*['fix']+trialTypes[360:480]
+            else:
+                trialTypes = re.sub("[']", '', df['pathsFulllist'][0])
+                trialTypes = trialTypes[1:-1].split(", ")
             df_final['onset'] = [num * time_trialLoc*2 + time_beginMemEvent for num in range(len(trialTypes))]
             df_final['duration'] = time_trialLoc
             df_final['trial_type'] = [trialTypes[trial] for trial in range(len(trialTypes))]
