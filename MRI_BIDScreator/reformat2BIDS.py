@@ -39,10 +39,10 @@ time_trial = 19.6
 time_trialLoc = .250
 
 # What to do?
-parrec2nii = False
-construct = False
-fixNiftiHeader = False
-behavior = True
+parrec2nii = False # Convert .PAR/.REC to nifti files
+construct = False # Construct the BIDS structure (includes the moving and renaming of nifti files)
+fixNiftiHeader = False # If BIDS validator throws errors because of the TR being defined in ms instead of s
+behavior = True # Write .tsv files
 
 # Paths
 pathBEHdata = '/Users/michlf/Dropbox/Work/Data/fMRI/NegativeTemplate/forScanner/mri/beh'
