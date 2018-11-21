@@ -117,7 +117,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                         # Fix nifti header
                         if fixNiftiHeader: # BIDS validator throws an error because the time units of the repetition time are in ms rather than in s (seconds is standard for the JSON)
                             fixed = nb.load(path2New)
-                            fixed.header.set_xyzt_units(8) # It is on 18...
+                            fixed.header.set_xyzt_units(8) # It is on 18 for some reason...
                             nb.save(fixed, path2New)
                         # JSON
                         path_fmap_PAR = pathMRIdata + folderlist[i] + '/' + [s for s in os.listdir(pathMRIdata+folderlist[i]) if "{0}_bold_".format(runIdx) in s and ".PAR" in s][0]
@@ -141,7 +141,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                         # Fix nifti header
                         if fixNiftiHeader: # BIDS validator throws an error because the time units of the repetition time are in ms rather than in s (seconds is standard for the JSON)
                             fixed = nb.load(path2New)
-                            fixed.header.set_xyzt_units(8) # It is on 18...
+                            fixed.header.set_xyzt_units(8) # It is on 18 for some reason...
                             nb.save(fixed, path2New)
                         # JSON
                         path_fmap_PAR = pathMRIdata + folderlist[i] + '/' + [s for s in os.listdir(pathMRIdata+folderlist[i]) if "{0}-bold_".format('Local') in s and ".PAR" in s][0]
@@ -189,6 +189,9 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
         ### Physiology (still to do) ###
         pass
 
+        ### Eye-tracking (still to do) ###
+        pass
+
         ### Behavior ###
         if behavior:
             # Experimental run(s)
@@ -199,7 +202,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             df['trial_type'] = 'memory'
             df['responseTime'] = round(df['responseTime'])
             df['condition'] = df['cond_template'].map(str) + '-' + df['cond_category']
-            # Now, chop up the file in individual runs
+            # Now, chop the file up into individual runs
             for runIdx in range(1,nrRuns):
                 # Cut the runs
                 df_final = df.truncate(before=(runIdx-1)*no_trialsBlock, after=no_trialsBlock-1+((runIdx-1)*no_trialsBlock))
