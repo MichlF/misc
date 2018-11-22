@@ -217,7 +217,11 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                 header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate'], index=False)
 
             # Localizer(s)
-            path2Original = pathBEHdata + '/' + [s for s in os.listdir(pathBEHdata) if "subject-{0}loc_".format(int(nrSubj)) in s and ".csv" in s][0]
+            try:
+                path2Original = pathBEHdata + '/' + [s for s in os.listdir(pathBEHdata) if "subject-{0}loc_".format(int(nrSubj)) in s and ".csv" in s][0]
+            except:
+                print('WARNING: could not find .csv for localizer. Skipped this subject!')
+                continue
             df = pd.read_csv(path2Original)
             # Construct a dataframe for the events.tsv file
             df_final = pd.DataFrame(columns=['onset','duration','trial_type','exemplarOrderFulllist', 'cond_order', 'block_list'])
