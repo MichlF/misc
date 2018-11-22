@@ -199,9 +199,10 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             df = pd.read_csv(path2Original)
             # Create/change a few variables to comply with BIDS
             df['duration'] = time_memEvent
-            df['trial_type'] = 'memory'
+            df['condition'] = 'memory'
             df['responseTime'] = round(df['responseTime'])
-            df['condition'] = df['cond_template'].map(str) + '-' + df['cond_category']
+            df['trial_type'] = df['cond_template'].map(str) + '-' + df['cond_category']
+            df['modulation'] = 1
             # Now, chop the file up into individual runs
             for runIdx in range(1,nrRuns):
                 # Cut the runs
@@ -213,8 +214,8 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                     df_final['onset'] = [round(num * time_trial + time_beginMemEvent, 2) for num in range(no_trialsBlock)]
                 # Save
                 path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_events.tsv'.format(nrSubj, runIdx, sesIdx)
-                df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'condition', 'cond_categoryNontemplate'], 
-                header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate'], index=False)
+                df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'condition', 'cond_categoryNontemplate', 'modulation'], 
+                header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate', 'modulation'], index=False)
 
             # Localizer(s)
             try:
@@ -261,6 +262,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             df_final['onset'] = [num * time_trialLoc*2 + time_beginMemEvent for num in range(len(trialTypes))]
             df_final['duration'] = time_trialLoc
             df_final['trial_type'] = [trialTypes[trial] for trial in range(len(trialTypes))]
+            df_final['modulation'] = 1
             # Save
             path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-Localizer_run-{1}_events.tsv'.format(nrSubj, nrRuns, sesIdx)
-            df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type'], index=False)
+            df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'modulation'], index=False)
