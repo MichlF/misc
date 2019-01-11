@@ -22,7 +22,7 @@ pip install --user nistats # install specific package
 
 import os
 
-subjects = [8, 14, 15]
+subjects = [9, 10, 11]
 
 batch_string = """# shell for the job:
 #PBS -S /bin/bash

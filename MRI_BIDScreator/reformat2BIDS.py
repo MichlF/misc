@@ -13,7 +13,7 @@ In the future it will also be able to ...
 '''
 
 # Import
-import os, subprocess, re, json, B0_separation, ees_function
+import os, subprocess, re, json, B0_separation, ees_function, shutil
 import nibabel as nb
 import pandas as pd
 from shutil import copyfile
@@ -30,23 +30,24 @@ def folderCreator(path):
 
 ### Start script
 # FOR NOW:
-sesIdx = '01'
-nrRuns = 9
-no_trialsBlock = 24
-time_memEvent = 7.7
-time_beginMemEvent = 10.5
-time_trial = 19.6
-time_trialLoc = .250
+use_PP = [3] # Only analyse subjects in this list of subjects
+sesIdx = '01' # Session (currently only one is working)
+nrRuns = 9 # Number of separate runs (8 + 1 localizer here)
+no_trialsBlock = 24 # trials per experimental block
+time_memEvent = 7.7 # memory event interval (in sec)
+time_beginMemEvent = 10.5 # begin of first memory event (in sec)
+time_trial = 19.6 # duration of an experimental trial (in sec)
+time_trialLoc = .250 # duration of a localizer "trial" (in sec)
 
 # What to do?
 parrec2nii = False # Convert .PAR/.REC to nifti files
-construct = False # Construct the BIDS structure (includes the moving and renaming of nifti files)
+construct = True # Construct the BIDS structure (includes the moving and renaming of nifti files)
 fixNiftiHeader = False # If BIDS validator throws errors because of the TR being defined in ms instead of s
 behavior = True # Write .tsv files
 
 # Paths
 pathBEHdata = '/Users/michlf/Dropbox/Work/Data/fMRI/NegativeTemplate/forScanner/mri/beh'
-pathMRIdata = '/Users/michlf/NROST_working/' 
+pathMRIdata = '/Volumes/VUHDD/NROST_data/' 
 pathBIDS = '/Users/michlf/NROST_working/fMRI_NROST/' #'/Users/michlf/Documents/GitHub/fMRI_NRoST
 
 # Start reformatting
@@ -65,6 +66,8 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
     os.chdir(pathMRIdata)
     folderlist = os.listdir(pathMRIdata)
     folderlist.sort()
+    # Remove all irrelevant folders
+    folderlist = [s for s in folderlist if 'NROST_VWM' in s[:9]]
     folderCreator(pathBIDS+'code/')
     folderCreator(pathBIDS+'derivatives/')
 
@@ -74,9 +77,13 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
         try:
             subList.append(folderlist[i].split("sub-",1)[1])
             nrSubj = folderlist[i].split("sub-",1)[1]
+            if use_PP and int(nrSubj) not in use_PP:
+                print('\n...skipped subject {0}...\n'.format(nrSubj))
+                continue # if not a subject to use when specified, move on to next iteration
             print('\n...running subject {0}...\n'.format(nrSubj))
-        except:
-            continue # if not a subject folder, move on to next iteration
+        except Exception as e:
+            print(e)
+            continue # if not a proper subject folder, move on to next iteration
         pathSubj = pathBIDS + 'sub-' + nrSubj
         folderCreator(pathSubj+'/ses-{0}/anat/'.format(sesIdx))
         folderCreator(pathSubj+'/ses-{0}/func/'.format(sesIdx))
@@ -149,10 +156,49 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                         path_fmap = path_fmapDir + 'sub-{0}_ses-{2}_dir-NR_run-{1}'.format(nrSubj, runIdx, sesIdx)
                     except Exception as e:
                         print('Error message:  ', e)
-                        print('Localizer run did not work. File missing?')
+                        print('Trying to access different session for localizer...')
+                        try:
+                            # Create folder for new session
+                            folderCreator(pathSubj+'/ses-{0}/anat/'.format('02'))
+                            folderCreator(pathSubj+'/ses-{0}/func/'.format('02'))
+                            folderCreator(pathSubj+'/ses-{0}/fmap/'.format('02'))
+                            folderCreator(pathSubj+'/ses-{0}/beh/'.format('02'))
+                            # EPI
+                            path2Original = pathMRIdata + folderlist[i] + '/localizer_rerun/' + [s for s in os.listdir(pathMRIdata+folderlist[i] + '/localizer_rerun/') if "{0}_epi_".format('Local') in s and ".nii.gz" in s][0]
+                            path2New = pathSubj + '/ses-{2}/fmap/sub-{0}_ses-{2}_dir-NR_run-{1}_epi.nii.gz'.format(nrSubj, runIdx, '02')
+                            copyfile(path2Original, path2New)
+                            # BOLD
+                            path2Original = pathMRIdata + folderlist[i] + '/localizer_rerun/' + [s for s in os.listdir(pathMRIdata+folderlist[i] + '/localizer_rerun/') if "{0}-bold_".format('Local') in s and ".nii.gz" in s][0]
+                            path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-Localizer_run-{1}_bold.nii.gz'.format(nrSubj, runIdx, '02')
+                            copyfile(path2Original, path2New)
+                            # Fix nifti header
+                            if fixNiftiHeader: # BIDS validator throws an error because the time units of the repetition time are in ms rather than in s (seconds is standard for the JSON)
+                                fixed = nb.load(path2New)
+                                fixed.header.set_xyzt_units(8) # It is on 18 for some reason...
+                                nb.save(fixed, path2New)
+                            # JSON
+                            path_fmap_PAR = pathMRIdata + folderlist[i] + '/localizer_rerun/' + [s for s in os.listdir(pathMRIdata+folderlist[i] + '/localizer_rerun/') if "{0}-bold_".format('Local') in s and ".PAR" in s][0]
+                            path_intended = '"ses-{2}/func/sub-{0}_ses-{2}_task-Localizer_run-{1}_bold.nii.gz"'.format(nrSubj, runIdx, '02')
+                            path_fmap = pathSubj + '/ses-{2}/fmap/sub-{0}_ses-{2}_dir-NR_run-{1}'.format(nrSubj, runIdx, '02')
+                            # B0 separation
+                            # If we come till here, there was a localizer rerun. So we will also have to separate B0 for this session as well
+                            path2Original = pathMRIdata + folderlist[i] + '/localizer_rerun' + [s for s in os.listdir(pathMRIdata+folderlist[i] + '/localizer_rerun/') if "B0" in s and ".nii.gz" in s][0]
+                            B0_separation.separation(path2Original, pathSubj+'/ses-{0}/fmap/'.format(sesIdx), nrSubj, '02')
+                            # Report
+                            print('Found localizer. Created second session and did B0 separation.')
+                        
+                        except Exception as e:
+                            print("Error message:  ", e)
+                            # Remove unnecessarily created folders
+                            shutil.rmtree(pathSubj+'/ses-{0}/anat/'.format('02'))
+                            shutil.rmtree(pathSubj+'/ses-{0}/func/'.format('02'))
+                            shutil.rmtree(pathSubj+'/ses-{0}/fmap/'.format('02'))
+                            shutil.rmtree(pathSubj+'/ses-{0}/beh/'.format('02'))
+                            #if os.path.isdir(pathMRIdata + folderlist[i] + '/' + [s for s in os.listdir(pathMRIdata+folderlist[i]) if "{0}_epi_".format('Local') in s and ".nii.gz" in s][0]
+                            print('Localizer run did not work. File missing?')
 
-            ### JSON files ###
-                # Individual EPIs (for each run incl. localizer)
+                ### JSON files ###
+                # Individual EPIs (for each experimental run incl. localizer)
                 try:
                     wfs = ees_function.readWfs(path_fmap_PAR)
                     print('wfs for run {0}: {1} px'.format(runIdx, wfs))
@@ -185,6 +231,22 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                     File.write(''.join('                    ' + path_intendedList[run] + ',')+ '\n')
             File.write(''.join('}')+ '\n')
             File.close()
+
+            # If we had the case of a localizer rerun, we need to create another phase difference JSON
+            if os.path.isdir(pathSubj+'/ses-{0}'.format('02')):
+                File = open(pathSubj + '/ses-{1}/fmap/sub-{0}_ses-{1}_phasediff.json'.format(nrSubj, '02'), 'w')
+                File.write(''.join('{')+ '\n')
+                File.write(''.join('    "EchoTime1": 0.003,')+ '\n')
+                File.write(''.join('    "EchoTime2": 0.008,')+ '\n')
+                for run in range(nrRuns):
+                    if run == 0:
+                        File.write(''.join('    "IntendedFor": [' + path_intendedList[run] + ',')+ '\n')
+                    elif run == nrRuns-1:
+                        File.write(''.join('                    ' + path_intendedList[run] + ']')+ '\n')
+                    else:
+                        File.write(''.join('                    ' + path_intendedList[run] + ',')+ '\n')
+                File.write(''.join('}')+ '\n')
+                File.close()
 
         ### Physiology (still to do) ###
         pass
