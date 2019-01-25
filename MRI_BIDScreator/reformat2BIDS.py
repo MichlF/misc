@@ -222,7 +222,10 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             File.write(''.join('{')+ '\n')
             File.write(''.join('    "EchoTime1": 0.003,')+ '\n')
             File.write(''.join('    "EchoTime2": 0.008,')+ '\n')
-            for run in range(nrRuns):
+            iterRun = nrRuns
+            if os.path.isdir(pathSubj+'/ses-{0}'.format('02')):
+                iterRun = nrRuns-1
+            for run in range(iterRun):
                 if run == 0:
                     File.write(''.join('    "IntendedFor": [' + path_intendedList[run] + ',')+ '\n')
                 elif run == nrRuns-1:
@@ -238,13 +241,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                 File.write(''.join('{')+ '\n')
                 File.write(''.join('    "EchoTime1": 0.003,')+ '\n')
                 File.write(''.join('    "EchoTime2": 0.008,')+ '\n')
-                for run in range(nrRuns):
-                    if run == 0:
-                        File.write(''.join('    "IntendedFor": [' + path_intendedList[run] + ',')+ '\n')
-                    elif run == nrRuns-1:
-                        File.write(''.join('                    ' + path_intendedList[run] + ']')+ '\n')
-                    else:
-                        File.write(''.join('                    ' + path_intendedList[run] + ',')+ '\n')
+                File.write(''.join('    "IntendedFor": [' + path_intendedList[-1] + ']')+ '\n')
                 File.write(''.join('}')+ '\n')
                 File.close()
 
