@@ -30,7 +30,7 @@ def folderCreator(path):
 
 ### Start script
 # FOR NOW:
-use_PP = [3] # Only analyse subjects in this list of subjects
+use_PP = [8] # Only analyse subjects in this list of subjects
 sesIdx = '01' # Session (currently only one is working)
 nrRuns = 9 # Number of separate runs (8 + 1 localizer here)
 no_trialsBlock = 24 # trials per experimental block
@@ -38,10 +38,11 @@ time_memEvent = 7.7 # memory event interval (in sec)
 time_beginMemEvent = 10.5 # begin of first memory event (in sec)
 time_trial = 19.6 # duration of an experimental trial (in sec)
 time_trialLoc = .250 # duration of a localizer "trial" (in sec)
+time_TR = .7 # duration of one repetition time
 
 # What to do?
 parrec2nii = False # Convert .PAR/.REC to nifti files
-construct = True # Construct the BIDS structure (includes the moving and renaming of nifti files)
+construct = False # Construct the BIDS structure (includes the moving and renaming of nifti files)
 fixNiftiHeader = False # If BIDS validator throws errors because of the TR being defined in ms instead of s
 behavior = True # Write .tsv files
 
@@ -262,18 +263,43 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             df['responseTime'] = round(df['responseTime'])
             df['trial_type'] = df['cond_template'].map(str) + '-' + df['cond_category']
             df['modulation'] = 1
+
+            # FIR ANALYSES
+            # For the .tsv file for the FIR analyses we need to expand the dataframe and thus rather build a new one from scratch
+            df1 = pd.read_csv(path2Original, usecols=['responseTime','correct','cond_categoryNontemplate', 'cond_template', 'cond_category'])
+            df1['trial_type']= df1['cond_template'].map(str) + '-' + df1['cond_category']
+            df_temp = pd.DataFrame(columns=list(df1)) # df with only headers
+            for i in range(len(df1.index)):
+                for k in range(28): # This method is insanely slow.
+                    df_temp = df_temp.append(df1.iloc[i], ignore_index = True) # fill rows with TR times the same info
+                    df_temp.iloc[i*28+k, df_temp.columns.get_loc('trial_type')] = df1.iloc[i, df1.columns.get_loc('trial_type')] + '-' + str(k) # trial_type label should reflect TR for a given condition
+            # Fill up the rest
+            df_temp['duration'] = time_TR
+            df_temp['responseTime'] = round(df['responseTime'])
+            df_temp['modulation'] = 1
+            
             # Now, chop the file up into individual runs
             for runIdx in range(1,nrRuns):
                 # Cut the runs
                 df_final = df.truncate(before=(runIdx-1)*no_trialsBlock, after=no_trialsBlock-1+((runIdx-1)*no_trialsBlock))
+                df_final_FIR = df_temp.truncate(before=(runIdx-1)*no_trialsBlock*28, after=no_trialsBlock*28-1+((runIdx-1)*no_trialsBlock*28))
                 if int(nrSubj) < 7: # One TR at the end of the first trial of each run is missing
                     df_final['onset'] = [round(num * time_trial + time_beginMemEvent - 0.7, 2) for num in range(no_trialsBlock)] # adjust all onsets by removing 1 TR
                     df_final.iloc[0, df_final.columns.get_loc('onset')] = 10.5 # change the first onset
+                    # FIR model: We want each of the 28 TRs per trial to be a regressor
+                    #df_final_FIR['onset'] = [round(num * time_trial + time_beginMemEvent - 0.7, 2) for num in range(no_trialsBlock*28)] # adjust all onsets by removing 1 TR
+                    #df_final_FIR.iloc[0, df_final.columns.get_loc('onset')] = 10.5 # change the first onset
                 else:
                     df_final['onset'] = [round(num * time_trial + time_beginMemEvent, 2) for num in range(no_trialsBlock)]
+                    df_final_FIR['onset'] = [round(num * time_TR + time_beginMemEvent, 2) for num in range(no_trialsBlock*28)]
                 # Save
+                # Normal
                 path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_events.tsv'.format(nrSubj, runIdx, sesIdx)
                 df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'condition', 'cond_categoryNontemplate', 'modulation'], 
+                header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate', 'modulation'], index=False)
+                # FIR
+                path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_events_FIR.tsv'.format(nrSubj, runIdx, sesIdx)
+                df_final_FIR.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'condition', 'cond_categoryNontemplate', 'modulation'], 
                 header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate', 'modulation'], index=False)
 
             # Localizer(s)
