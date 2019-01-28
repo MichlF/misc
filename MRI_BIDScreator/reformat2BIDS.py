@@ -2,14 +2,15 @@
 This script ...
 - ...reads in nii files from some folder and reformats them into the BIDS format.
 - ...creates JSON files for .epi files.
-- ...reads in behavioral .csv files from OpenSesame and creates .tsv event files.
+- ...reads in behavioral .csv files from OpenSesame and creates .tsv event files
+        which can be used as design matrices for nistats/nilearn
 
 In the future it will also be able to ...
 - ...create dataset_description.json and task jsons.
 - ...read in and format eye tracking data.
 - ...read in and format physiology data.
 
-@Michel Failing, 2018
+@Michel Failing, 2019
 '''
 
 # Import
@@ -30,7 +31,7 @@ def folderCreator(path):
 
 ### Start script
 # FOR NOW:
-use_PP = [8] # Only analyse subjects in this list of subjects
+use_PP = [1] # Only analyse subjects in this list of subjects
 sesIdx = '01' # Session (currently only one is working)
 nrRuns = 9 # Number of separate runs (8 + 1 localizer here)
 no_trialsBlock = 24 # trials per experimental block
@@ -183,7 +184,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                             path_fmap = pathSubj + '/ses-{2}/fmap/sub-{0}_ses-{2}_dir-NR_run-{1}'.format(nrSubj, runIdx, '02')
                             # B0 separation
                             # If we come till here, there was a localizer rerun. So we will also have to separate B0 for this session as well
-                            path2Original = pathMRIdata + folderlist[i] + '/localizer_rerun' + [s for s in os.listdir(pathMRIdata+folderlist[i] + '/localizer_rerun/') if "B0" in s and ".nii.gz" in s][0]
+                            path2Original = pathMRIdata + folderlist[i] + '/localizer_rerun/' + [s for s in os.listdir(pathMRIdata+folderlist[i] + '/localizer_rerun/') if "B0" in s and ".nii.gz" in s][0]
                             B0_separation.separation(path2Original, pathSubj+'/ses-{0}/fmap/'.format(sesIdx), nrSubj, '02')
                             # Report
                             print('Found localizer. Created second session and did B0 separation.')
@@ -272,7 +273,10 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             for i in range(len(df1.index)):
                 for k in range(28): # This method is insanely slow.
                     df_temp = df_temp.append(df1.iloc[i], ignore_index = True) # fill rows with TR times the same info
-                    df_temp.iloc[i*28+k, df_temp.columns.get_loc('trial_type')] = df1.iloc[i, df1.columns.get_loc('trial_type')] + '-' + str(k) # trial_type label should reflect TR for a given condition
+                    #FIR
+                    df_temp.iloc[i*28+k, df_temp.columns.get_loc('trial_type')] = df1.iloc[i, df1.columns.get_loc('trial_type')] + '-{:02d}'.format(k+1) # trial_type label should reflect TR for a given condition
+                    #FIR2
+                    df_temp.iloc[i*28+k, df_temp.columns.get_loc('trial_type')] = 'TR-{:02d}'.format(k+1) # trial_type label should reflect TR
             # Fill up the rest
             df_temp['duration'] = time_TR
             df_temp['responseTime'] = round(df['responseTime'])
@@ -284,11 +288,11 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                 df_final = df.truncate(before=(runIdx-1)*no_trialsBlock, after=no_trialsBlock-1+((runIdx-1)*no_trialsBlock))
                 df_final_FIR = df_temp.truncate(before=(runIdx-1)*no_trialsBlock*28, after=no_trialsBlock*28-1+((runIdx-1)*no_trialsBlock*28))
                 if int(nrSubj) < 7: # One TR at the end of the first trial of each run is missing
-                    df_final['onset'] = [round(num * time_trial + time_beginMemEvent - 0.7, 2) for num in range(no_trialsBlock)] # adjust all onsets by removing 1 TR
+                    df_final['onset'] = [round(num * time_trial + time_beginMemEvent - time_TR, 2) for num in range(no_trialsBlock)] # adjust all onsets by removing 1 TR
                     df_final.iloc[0, df_final.columns.get_loc('onset')] = 10.5 # change the first onset
                     # FIR model: We want each of the 28 TRs per trial to be a regressor
-                    #df_final_FIR['onset'] = [round(num * time_trial + time_beginMemEvent - 0.7, 2) for num in range(no_trialsBlock*28)] # adjust all onsets by removing 1 TR
-                    #df_final_FIR.iloc[0, df_final.columns.get_loc('onset')] = 10.5 # change the first onset
+                    df_final_FIR['onset'] = [round(num * time_TR + time_beginMemEvent, 2) for num in range(no_trialsBlock*28)] # adjust all onsets by removing 1 TR
+                    df_final_FIR.iloc[0, df_final_FIR.columns.get_loc('onset')] = 10.5 # change the first onset
                 else:
                     df_final['onset'] = [round(num * time_trial + time_beginMemEvent, 2) for num in range(no_trialsBlock)]
                     df_final_FIR['onset'] = [round(num * time_TR + time_beginMemEvent, 2) for num in range(no_trialsBlock*28)]
@@ -298,9 +302,9 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                 df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'condition', 'cond_categoryNontemplate', 'modulation'], 
                 header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate', 'modulation'], index=False)
                 # FIR
-                path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_events_FIR.tsv'.format(nrSubj, runIdx, sesIdx)
-                df_final_FIR.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'condition', 'cond_categoryNontemplate', 'modulation'], 
-                header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate', 'modulation'], index=False)
+                path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_events_FIR2.tsv'.format(nrSubj, runIdx, sesIdx)
+                df_final_FIR.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'modulation', 'responseTime', 'correct', 'cond_template', 'cond_category', 'cond_categoryNontemplate'], 
+                header=['onset', 'duration', 'trial_type', 'modulation', 'response_time', 'correct', 'cond_template', 'cond_category', 'condition_nonTTemplate'], index=False)
 
             # Localizer(s)
             try:
