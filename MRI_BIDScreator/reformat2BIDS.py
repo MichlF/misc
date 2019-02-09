@@ -25,13 +25,13 @@ def folderCreator(path):
     try:
         os.makedirs(path)
     except OSError as e:
-        if e.errno != os.errno.EEXIST:
+        if e.errno != errno.EEXIST:
             raise
         pass
 
 ### Start script
 # FOR NOW:
-use_PP = [1] # Only analyse subjects in this list of subjects
+use_PP = [20, 21, 22, 23, 24] # Only analyse subjects in this list of subjects
 sesIdx = '01' # Session (currently only one is working)
 nrRuns = 9 # Number of separate runs (8 + 1 localizer here)
 no_trialsBlock = 24 # trials per experimental block
@@ -43,8 +43,8 @@ time_TR = .7 # duration of one repetition time
 
 # What to do?
 parrec2nii = False # Convert .PAR/.REC to nifti files
-construct = False # Construct the BIDS structure (includes the moving and renaming of nifti files)
-fixNiftiHeader = False # If BIDS validator throws errors because of the TR being defined in ms instead of s
+construct = True # Construct the BIDS structure (includes the moving and renaming of nifti files)
+fixNiftiHeader = True # If BIDS validator throws errors because of the TR being defined in ms instead of s
 behavior = True # Write .tsv files
 
 # Paths
