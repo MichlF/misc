@@ -14,7 +14,7 @@ In the future it will also be able to ...
 '''
 
 # Import
-import os, subprocess, re, json, B0_separation, ees_function, shutil
+import os, errno, subprocess, re, json, B0_separation, ees_function, shutil
 import nibabel as nb
 import pandas as pd
 from shutil import copyfile
@@ -27,11 +27,10 @@ def folderCreator(path):
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise
-        pass
 
 ### Start script
 # FOR NOW:
-use_PP = [20, 21, 22, 23, 24] # Only analyse subjects in this list of subjects
+use_PP = [16] # Only analyse subjects in this list of subjects
 sesIdx = '01' # Session (currently only one is working)
 nrRuns = 9 # Number of separate runs (8 + 1 localizer here)
 no_trialsBlock = 24 # trials per experimental block
