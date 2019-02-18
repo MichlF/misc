@@ -264,7 +264,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             df['condition'] = 'memory'
             df['responseTime'] = round(df['responseTime'])
             df['trial_type'] = df['cond_template'].map(str) + '-' + df['cond_category']
-            df['modulation'] = 1
+            #df['modulation'] = 1
 
             # FIR ANALYSES
             # For the .tsv file for the FIR analyses we need to expand the dataframe and thus rather build a new one from scratch
@@ -281,7 +281,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             # Fill up the rest
             df_temp['duration'] = time_TR
             df_temp['responseTime'] = round(df['responseTime'])
-            df_temp['modulation'] = 1
+            #df_temp['modulation'] = 1
             
             # Now, chop the file up into individual runs
             for runIdx in range(1,nrRuns):
@@ -300,12 +300,12 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                 # Save
                 # Normal
                 path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_events.tsv'.format(nrSubj, runIdx, sesIdx)
-                df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'condition', 'cond_categoryNontemplate', 'modulation'], 
-                header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate', 'modulation'], index=False)
+                df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'condition', 'cond_categoryNontemplate'], 
+                header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate'], index=False)
                 # FIR
                 path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_events_FIR2.tsv'.format(nrSubj, runIdx, sesIdx)
-                df_final_FIR.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'modulation', 'responseTime', 'correct', 'cond_template', 'cond_category', 'cond_categoryNontemplate'], 
-                header=['onset', 'duration', 'trial_type', 'modulation', 'response_time', 'correct', 'cond_template', 'cond_category', 'condition_nonTTemplate'], index=False)
+                df_final_FIR.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', , 'responseTime', 'correct', 'cond_template', 'cond_category', 'cond_categoryNontemplate'], 
+                header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'cond_template', 'cond_category', 'condition_nonTTemplate'], index=False)
 
             # Localizer(s)
             try:
@@ -352,10 +352,12 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             df_final['onset'] = [num * time_trialLoc*2 + time_beginMemEvent for num in range(len(trialTypes))]
             df_final['duration'] = time_trialLoc
             df_final['trial_type'] = [trialTypes[trial] for trial in range(len(trialTypes))]
-            df_final['modulation'] = 1
+            #df_final['modulation'] = 1
             # Save
             if os.path.isdir(pathSubj+'/ses-{0}'.format('02')):
                 path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-Localizer_run-{1}_events.tsv'.format(nrSubj, nrRuns, '02')
             else:
                 path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-Localizer_run-{1}_events.tsv'.format(nrSubj, nrRuns, sesIdx)
-            df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'modulation'], index=False)
+            df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type'], index=False)
+
+#END
