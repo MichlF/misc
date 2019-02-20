@@ -30,7 +30,7 @@ def folderCreator(path):
 
 ### Start script
 # FOR NOW:
-use_PP = [2,3,13,19] # Only analyse subjects in this list of subjects
+use_PP = [2] # Only analyse subjects in this list of subjects
 sesIdx = '01' # Session (currently only one is working)
 nrRuns = 9 # Number of separate runs (8 + 1 localizer here)
 no_trialsBlock = 24 # trials per experimental block
@@ -304,7 +304,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                 header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate'], index=False)
                 # FIR
                 path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_events_FIR2.tsv'.format(nrSubj, runIdx, sesIdx)
-                df_final_FIR.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', , 'responseTime', 'correct', 'cond_template', 'cond_category', 'cond_categoryNontemplate'], 
+                df_final_FIR.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'cond_template', 'cond_category', 'cond_categoryNontemplate'], 
                 header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'cond_template', 'cond_category', 'condition_nonTTemplate'], index=False)
 
             # Localizer(s)

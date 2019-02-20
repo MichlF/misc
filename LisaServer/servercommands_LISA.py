@@ -67,7 +67,7 @@ pbs_jobmonitor [jobid] [nodeid]
 
 import os
 
-subjects = [3]
+subjects = [2]
 
 batch_string = """#!/bin/bash
 #SBATCH -N 1
