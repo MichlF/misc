@@ -1,12 +1,12 @@
 from scipy.stats import t
 from math import sqrt
 
-def confidence_int(data, p_value=.05, morey=True):
+def confidence_int(data, p_value=.05, tail='two', morey=True):
     """
     confidence_int
     
     Cousineau's method (2005) for calculating within-subject confidence intervals
-    If needed, Morey's correction (2008) can be applied.
+    If needed, Morey's correction (2008) can be applied (recommended).
     
     Parameters
     ----------
@@ -22,14 +22,18 @@ def confidence_int(data, p_value=.05, morey=True):
     CI : ndarray
         Confidence intervals for each condition
     """
-
-    # normalize the data by subtracting the participants mean performance from each observation, and then add the grand mean to each observation
+    
+    if tail=='two':
+        p_value = p_value/2
+        
+    # normalize the data by subtracting the participants mean performance from each observation, 
+    # and then add the grand mean to each observation
     ind_mean = data.mean(axis = 1).reshape(data.shape[0],1)
     grand_mean = data.mean(axis = 1).mean()
     data = data - ind_mean + grand_mean
     # Look up t-value and caluclate CIs
     t_value = abs(t.ppf([p_value], data.shape[0]-1)[0])
-    CI = data.std(axis = 0)/sqrt(data.shape[0])*t_value
+    CI = data.std(axis = 0, ddof=1)/sqrt(data.shape[0])*t_value
     
     # correct CIs according to Morey (2008)
     if morey:
