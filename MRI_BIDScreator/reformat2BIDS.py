@@ -30,7 +30,7 @@ def folderCreator(path):
 
 ### Start script
 # FOR NOW:
-use_PP = [18, 19] # Only analyse subjects in this list of subjects
+use_PP = [12, 14] # Only analyse subjects in this list of subjects
 sesIdx = '01' # Session (currently only one is working)
 nrRuns = 9 # Number of separate runs (8 + 1 localizer here)
 no_trialsBlock = 24 # trials per experimental block
@@ -54,6 +54,7 @@ pathBIDS = '/Users/michlf/NROST_working/fMRI_NROST/' #'/Users/michlf/Documents/G
 # Start reformatting
 # Implement parrec2nii (still to do...)
 if parrec2nii:
+    print('Have you already created the .nii.gz files?')
     pass
     #p = subprocess.Popen(['parrec2nii', '-c', '*.PAR'], cwd=pathMRIdata)
     #os.system("cd {0}".format(pathMRIdata))
