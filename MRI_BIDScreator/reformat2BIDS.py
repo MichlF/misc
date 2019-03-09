@@ -30,7 +30,7 @@ def folderCreator(path):
 
 ### Start script
 # FOR NOW:
-use_PP = [12, 14] # Only analyse subjects in this list of subjects
+use_PP = [] # Only analyse subjects in this list of subjects
 sesIdx = '01' # Session (currently only one is working)
 nrRuns = 9 # Number of separate runs (8 + 1 localizer here)
 no_trialsBlock = 24 # trials per experimental block
@@ -42,8 +42,8 @@ time_TR = .7 # duration of one repetition time
 
 # What to do?
 parrec2nii = False # Convert .PAR/.REC to nifti files
-construct = True # Construct the BIDS structure (includes the moving and renaming of nifti files)
-fixNiftiHeader = True # If BIDS validator throws errors because of the TR being defined in ms instead of s
+construct = False # Construct the BIDS structure (includes the moving and renaming of nifti files)
+fixNiftiHeader = False # If BIDS validator throws errors because of the TR being defined in ms instead of s
 behavior = True # Write .tsv files
 
 # Paths
@@ -265,7 +265,8 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             df['condition'] = 'memory'
             df['responseTime'] = round(df['responseTime'])
             df['trial_type'] = df['cond_template'].map(str) + '-' + df['cond_category']
-            #df['modulation'] = 1
+            df['trial_type_extended'] = df['cond_template'].map(str) + '-' + df['cond_category'] + '-' + df['cond_templateExemplar'].map(str)
+            df['modulation'] = 1
 
             # FIR ANALYSES
             # For the .tsv file for the FIR analyses we need to expand the dataframe and thus rather build a new one from scratch
@@ -282,7 +283,7 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             # Fill up the rest
             df_temp['duration'] = time_TR
             df_temp['responseTime'] = round(df['responseTime'])
-            #df_temp['modulation'] = 1
+            df_temp['modulation'] = 1
             
             # Now, chop the file up into individual runs
             for runIdx in range(1,nrRuns):
@@ -301,8 +302,8 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                 # Save
                 # Normal
                 path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_events.tsv'.format(nrSubj, runIdx, sesIdx)
-                df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'condition', 'cond_categoryNontemplate'], 
-                header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate'], index=False)
+                df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'condition', 'cond_categoryNontemplate', 'trial_type_extended'], 
+                header=['onset', 'duration', 'trial_type', 'response_time', 'correct', 'condition', 'condition_nonTTemplate', 'trial_type_extended'], index=False)
                 # FIR
                 path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-NRoST_run-{1}_events_FIR2.tsv'.format(nrSubj, runIdx, sesIdx)
                 df_final_FIR.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type', 'responseTime', 'correct', 'cond_template', 'cond_category', 'cond_categoryNontemplate'], 
