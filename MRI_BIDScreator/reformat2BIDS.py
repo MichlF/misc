@@ -16,6 +16,7 @@ In the future it will also be able to ...
 # Import
 import os, errno, subprocess, re, json, B0_separation, ees_function, shutil
 import nibabel as nb
+import numpy as np
 import pandas as pd
 from shutil import copyfile
 from pprint import pprint
@@ -265,7 +266,10 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             df['condition'] = 'memory'
             df['responseTime'] = round(df['responseTime'])
             df['trial_type'] = df['cond_template'].map(str) + '-' + df['cond_category']
-            df['trial_type_extended'] = df['cond_template'].map(str) + '-' + df['cond_category'] + '-' + df['cond_templateExemplar'].map(str)
+            # Build the trial-type column for the deconvolution
+            # For nideconv to not collapse over the occasional identical trials within a run, 
+            # we pass a unique number (times the log item was called) in the string
+            #df['trial_type_extended'] = df['cond_template'].map(str)+'-'+df['cond_category']+'-'+df['cond_templateExemplar'].map(str)
             df['modulation'] = 1
 
             # FIR ANALYSES
@@ -273,13 +277,69 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             df1 = pd.read_csv(path2Original, usecols=['responseTime','correct','cond_categoryNontemplate', 'cond_template', 'cond_category'])
             df1['trial_type']= df1['cond_template'].map(str) + '-' + df1['cond_category']
             df_temp = pd.DataFrame(columns=list(df1)) # df with only headers
+            # Starting a nasty loop for the deconvolution analysis
+            # We need to count the number of times a certain trial has already occurred and give each a unique index,
+            # but that index must be equally often present in each subject
+            # First create counters:
+            # Matrix: Condition (positive, negative, neutral, drop) x Category (cow, dresser, skate) x Exemplar (1,2,3,4)
+            counters = np.zeros( (4,3,4) )
+            string = []
             for i in range(len(df1.index)):
-                for k in range(28): # This method is insanely slow.
+                for k in range(28): # This method is insanely slow and only for the FIR .tsv
                     df_temp = df_temp.append(df1.iloc[i], ignore_index = True) # fill rows with TR times the same info
                     #FIR
                     df_temp.iloc[i*28+k, df_temp.columns.get_loc('trial_type')] = df1.iloc[i, df1.columns.get_loc('trial_type')] + '-{:02d}'.format(k+1) # trial_type label should reflect TR for a given condition
                     #FIR2
                     df_temp.iloc[i*28+k, df_temp.columns.get_loc('trial_type')] = 'TR-{:02d}'.format(k+1) # trial_type label should reflect TR
+                # Now we count...
+                # positive
+                if df['cond_template'][i] == 'positive':
+                    if df['cond_category'][i] == 'cow':
+                        counters[0,0,df['cond_templateExemplar'][i]-1] += 1
+                        string.append( str(df['cond_template'][i])+'-'+str(df['cond_category'][i])+'-'+str(df['cond_templateExemplar'][i])+'-'+str(int(counters[0,0,df['cond_templateExemplar'][i]-1])))
+                    elif df['cond_category'][i] == 'skate':
+                        counters[0,1,df['cond_templateExemplar'][i]-1] += 1
+                        string.append( str(df['cond_template'][i])+'-'+str(df['cond_category'][i])+'-'+str(df['cond_templateExemplar'][i])+'-'+str(int(counters[0,1,df['cond_templateExemplar'][i]-1])))
+                    elif df['cond_category'][i] == 'dresser':
+                        counters[0,2,df['cond_templateExemplar'][i]-1] += 1
+                        string.append( str(df['cond_template'][i])+'-'+str(df['cond_category'][i])+'-'+str(df['cond_templateExemplar'][i])+'-'+str(int(counters[0,2,df['cond_templateExemplar'][i]-1])))
+                # negative
+                elif df['cond_template'][i] == 'negative':
+                    if df['cond_category'][i] == 'cow':
+                        counters[1,0,df['cond_templateExemplar'][i]-1] += 1
+                        string.append( str(df['cond_template'][i])+'-'+str(df['cond_category'][i])+'-'+str(df['cond_templateExemplar'][i])+'-'+str(int(counters[1,0,df['cond_templateExemplar'][i]-1])))
+                    elif df['cond_category'][i] == 'skate':
+                        counters[1,1,df['cond_templateExemplar'][i]-1] += 1
+                        string.append( str(df['cond_template'][i])+'-'+str(df['cond_category'][i])+'-'+str(df['cond_templateExemplar'][i])+'-'+str(int(counters[1,1,df['cond_templateExemplar'][i]-1])))
+                    elif df['cond_category'][i] == 'dresser':
+                        counters[1,2,df['cond_templateExemplar'][i]-1] += 1
+                        string.append( str(df['cond_template'][i])+'-'+str(df['cond_category'][i])+'-'+str(df['cond_templateExemplar'][i])+'-'+str(int(counters[1,2,df['cond_templateExemplar'][i]-1])))
+                # neutral
+                elif df['cond_template'][i] == 'neutral':
+                    if df['cond_category'][i] == 'cow':
+                        counters[2,0,df['cond_templateExemplar'][i]-1] += 1
+                        string.append( str(df['cond_template'][i])+'-'+str(df['cond_category'][i])+'-'+str(df['cond_templateExemplar'][i])+'-'+str(int(counters[2,0,df['cond_templateExemplar'][i]-1])))
+                    elif df['cond_category'][i] == 'skate':
+                        counters[2,1,df['cond_templateExemplar'][i]-1] += 1
+                        string.append( str(df['cond_template'][i])+'-'+str(df['cond_category'][i])+'-'+str(df['cond_templateExemplar'][i])+'-'+str(int(counters[2,1,df['cond_templateExemplar'][i]-1])))
+                    elif df['cond_category'][i] == 'dresser':
+                        counters[2,2,df['cond_templateExemplar'][i]-1] += 1
+                        string.append( str(df['cond_template'][i])+'-'+str(df['cond_category'][i])+'-'+str(df['cond_templateExemplar'][i])+'-'+str(int(counters[2,2,df['cond_templateExemplar'][i]-1])))
+                # drop
+                elif df['cond_template'][i] == 'drop':
+                    if df['cond_category'][i] == 'cow':
+                        counters[3,0,df['cond_templateExemplar'][i]-1] += 1
+                        string.append( str(df['cond_template'][i])+'-'+str(df['cond_category'][i])+'-'+str(df['cond_templateExemplar'][i])+'-'+str(int(counters[3,0,df['cond_templateExemplar'][i]-1])))
+                    elif df['cond_category'][i] == 'skate':
+                        counters[3,1,df['cond_templateExemplar'][i]-1] += 1
+                        string.append( str(df['cond_template'][i])+'-'+str(df['cond_category'][i])+'-'+str(df['cond_templateExemplar'][i])+'-'+str(int(counters[3,1,df['cond_templateExemplar'][i]-1])))
+                    elif df['cond_category'][i] == 'dresser':
+                        counters[3,2,df['cond_templateExemplar'][i]-1] += 1
+                        string.append( str(df['cond_template'][i])+'-'+str(df['cond_category'][i])+'-'+str(df['cond_templateExemplar'][i])+'-'+str(int(counters[3,2,df['cond_templateExemplar'][i]-1])))
+
+            # Create extended trial_type in pandas
+            df['trial_type_extended'] = string
+
             # Fill up the rest
             df_temp['duration'] = time_TR
             df_temp['responseTime'] = round(df['responseTime'])
@@ -361,5 +421,6 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
             else:
                 path2New = pathSubj + '/ses-{2}/func/sub-{0}_ses-{2}_task-Localizer_run-{1}_events.tsv'.format(nrSubj, nrRuns, sesIdx)
             df_final.to_csv(path2New, sep='\t', columns=['onset', 'duration', 'trial_type'], index=False)
+            print("Created & stored behavioral .tsv files")
 
 #END
