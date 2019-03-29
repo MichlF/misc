@@ -352,10 +352,10 @@ if any('sub-' in s for s in os.listdir(pathMRIdata)):  # check whether there is 
                 df_final_FIR = df_temp.truncate(before=(runIdx-1)*no_trialsBlock*28, after=no_trialsBlock*28-1+((runIdx-1)*no_trialsBlock*28))
                 if int(nrSubj) < 7: # One TR at the end of the first trial of each run is missing
                     df_final['onset'] = [round(num * time_trial + time_beginMemEvent - time_TR, 2) for num in range(no_trialsBlock)] # adjust all onsets by removing 1 TR
-                    df_final.iloc[0, df_final.columns.get_loc('onset')] = 10.5 # change the first onset
+                    df_final.iloc[0, df_final.columns.get_loc('onset')] = 10 # change the first onset
                     # FIR model: We want each of the 28 TRs per trial to be a regressor
                     df_final_FIR['onset'] = [round(num * time_TR + time_beginMemEvent, 2) for num in range(no_trialsBlock*28)] # adjust all onsets by removing 1 TR
-                    df_final_FIR.iloc[0, df_final_FIR.columns.get_loc('onset')] = 10.5 # change the first onset
+                    df_final_FIR.iloc[0, df_final_FIR.columns.get_loc('onset')] = 10 # change the first onset
                 else:
                     df_final['onset'] = [round(num * time_trial + time_beginMemEvent, 2) for num in range(no_trialsBlock)]
                     df_final_FIR['onset'] = [round(num * time_TR + time_beginMemEvent, 2) for num in range(no_trialsBlock*28)]
