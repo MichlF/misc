@@ -30,7 +30,7 @@ def confidence_int(data, p_value=.05, tail='two', morey=True):
         p_value = p_value/2
     elif tail not in ['two','one']:
         p_value = p_value/2        
-        warnings.warn('Incorrect argument for tail: using default ("two"))
+        warnings.warn('Incorrect argument for tail: using default ("two")')
         
     # normalize the data by subtracting the participants mean performance from each observation, 
     # and then add the grand mean to each observation
