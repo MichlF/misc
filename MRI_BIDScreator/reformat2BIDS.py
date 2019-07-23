@@ -12,6 +12,7 @@ In the future it will also be able to ...
 
 @Michel Failing, 2019
 '''
+import numpy
 
 # Import
 import os, errno, subprocess, re, json, B0_separation, ees_function, shutil
