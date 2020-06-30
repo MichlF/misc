@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
-from math import sqrt
-from scipy.stats import ttest_rel, ttest_ind, wilcoxon
+from scipy.stats import ttest_rel, ttest_ind
 
 
 def clusterbased_permutation(X1, X2, p_val=0.05, cl_p_val=0.05, paired=True, tail='both', nr_perm=1000, mask=None, conn=None):
@@ -36,12 +35,11 @@ def clusterbased_permutation(X1, X2, p_val=0.05, cl_p_val=0.05, paired=True, tai
     # if no mask is provided include all datapoints in analysis
     if mask == None:
         mask = np.array(np.ones(X1.shape[1:]), dtype=bool)
-        print('\nUsing all {} datapoints in cluster based permutation'.format(mask.size))
+        print(f'\nUsing all {mask.size} datapoints in cluster based permutation')
     elif mask.shape != X1[0].shape:
         print('\nMask does not have the same shape as X1. Adjust mask!')
     else:
-        print('\nThere are {} out of {} datapoints in your mask during cluster based permutation'.format(
-            int(mask.sum()), mask.size))
+        print(f'\nThere are {int(mask.sum())} out of {mask.size} datapoints in your mask during cluster based permutation')
 
     # check whether X2 is a chance variable or a data array
     if isinstance(X2, (float, int)):
@@ -62,7 +60,7 @@ def clusterbased_permutation(X1, X2, p_val=0.05, cl_p_val=0.05, paired=True, tai
 
     for p in range(nr_perm):
 
-        print("{0}% of permutations\r".format((float(p)/nr_perm)*100))
+        print(f"{(float(p)/nr_perm)*100}% of permutations\r")
 
         # create random partitions
         if paired:  # keep observations paired under permutation
@@ -132,7 +130,7 @@ def compute_clustersizes(X1, X2, p_val, paired, tail, mask, conn):
 
     Helper function for clusterbased_permutation (see documentation)
 
-    NOTE!!!
+    # ! NOTE:
     At the moment only supports two tailed tests
     At the moment does not support connectivity
     '''

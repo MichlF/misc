@@ -3,9 +3,9 @@ from math import sqrt
 import warnings
 
 
-def confidence_int(data, p_value=.05, tail='two', morey=True):
+def within_confidence_int(data, p_value=.05, tail='two', morey=True):
     """
-    confidence_int
+    within_confidence_int
 
     Cousineau's method (2005) for calculating within-subject confidence intervals
     If needed, Morey's correction (2008) can be applied (recommended).
