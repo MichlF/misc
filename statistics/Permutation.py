@@ -35,11 +35,13 @@ def clusterbased_permutation(X1, X2, p_val=0.05, cl_p_val=0.05, paired=True, tai
     # if no mask is provided include all datapoints in analysis
     if mask == None:
         mask = np.array(np.ones(X1.shape[1:]), dtype=bool)
-        print(f'\nUsing all {mask.size} datapoints in cluster based permutation')
+        print(
+            f'\nUsing all {mask.size} datapoints in cluster based permutation')
     elif mask.shape != X1[0].shape:
         print('\nMask does not have the same shape as X1. Adjust mask!')
     else:
-        print(f'\nThere are {int(mask.sum())} out of {mask.size} datapoints in your mask during cluster based permutation')
+        print(
+            f'\nThere are {int(mask.sum())} out of {mask.size} datapoints in your mask during cluster based permutation')
 
     # check whether X2 is a chance variable or a data array
     if isinstance(X2, (float, int)):
@@ -185,3 +187,13 @@ def compute_clustersizes(X1, X2, p_val, paired, tail, mask, conn):
         neg_sizes = 0
 
     return pos_sizes, neg_sizes, pos_labels, neg_labels, p_vals
+
+
+def cluster_plot(X1, X2, times, y, p_val=.05, cl_p_val=.05, color='black', ls='-', linewidth=2):
+
+    sig_cl = clusterbased_permutation(X1, X2, p_val=p_val, cl_p_val=cl_p_val)
+    mask = np.where(sig_cl < 1)[0]
+    sig_cl = np.split(mask, np.where(np.diff(mask) != 1)[0]+1)
+    for cl in sig_cl:
+        plt.plot(times[cl], np.ones(cl.size) * y,
+                 color=color, ls=ls, linewidth=linewidth)
