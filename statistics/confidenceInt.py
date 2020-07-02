@@ -3,7 +3,7 @@ from math import sqrt
 import warnings
 
 
-def within_confidence_int(data, p_value=.05, tail='two', morey=True):
+def wconfidence_int(data, p_value=.05, tail='two', morey=True):
     """
     within_confidence_int
 
