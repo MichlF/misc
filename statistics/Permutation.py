@@ -3,7 +3,7 @@ import numpy as np
 from scipy.stats import ttest_rel, ttest_ind
 
 
-def clusterbased_permutation(X1, X2, p_val=0.05, cl_p_val=0.05, paired=True, tail='both', nr_perm=1000, mask=None, conn=None):
+def clusterbased_permutation(X1, X2, p_val=0.05, cl_p_val=0.05, paired=True, tail='both', nr_perm=1000, mask=None, conn=None, verbose=True):
     '''
     Implements Maris, E., & Oostenveld, R. (2007). Nonparametric statistical testing of EEG- and MEG- data. 
     Journal of Neurosience Methods, 164(1), 177?190. http://doi.org/10.1016/J.Jneumeth.2007.03.024
@@ -59,10 +59,11 @@ def clusterbased_permutation(X1, X2, p_val=0.05, cl_p_val=0.05, paired=True, tai
     # initiate random arrays
     X1_rand = np.zeros(X1.shape)
     X2_rand = np.zeros(X1.shape)
-
+    
+    print("Permutating...")
     for p in range(nr_perm):
-
-        print(f"{(float(p)/nr_perm)*100}% of permutations\r")
+        if verbose:
+            print(f"{(float(p)/nr_perm)*100}% of permutations\n")
 
         # create random partitions
         if paired:  # keep observations paired under permutation
@@ -189,11 +190,11 @@ def compute_clustersizes(X1, X2, p_val, paired, tail, mask, conn):
     return pos_sizes, neg_sizes, pos_labels, neg_labels, p_vals
 
 
-def cluster_plot(X1, X2, times, y, p_val=.05, cl_p_val=.05, color='black', ls='-', linewidth=2):
+def cluster_plot(ax, X1, X2, times, y, p_val=.05, cl_p_val=.05, color='black', ls='-', linewidth=2, verbose=True):
 
-    sig_cl = clusterbased_permutation(X1, X2, p_val=p_val, cl_p_val=cl_p_val)
+    sig_cl = clusterbased_permutation(X1, X2, p_val=p_val, cl_p_val=cl_p_val, verbose=verbose)
     mask = np.where(sig_cl < 1)[0]
     sig_cl = np.split(mask, np.where(np.diff(mask) != 1)[0]+1)
     for cl in sig_cl:
-        plt.plot(times[cl], np.ones(cl.size) * y,
+        ax.plot(times[cl], np.ones(cl.size) * y,
                  color=color, ls=ls, linewidth=linewidth)
