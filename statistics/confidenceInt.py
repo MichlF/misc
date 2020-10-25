@@ -38,7 +38,7 @@ def wconfidence_int(data, p_value=.05, tail='two', morey=True):
     ind_mean = data.mean(axis=1).reshape(data.shape[0], 1)
     grand_mean = data.mean(axis=1).mean()
     data = data - ind_mean + grand_mean
-    # Look up t-value and caluclate CIs
+    # Look up t-value and calculate CIs
     t_value = abs(t.ppf([p_value], data.shape[0]-1)[0])
     CI = data.std(axis=0, ddof=1)/sqrt(data.shape[0])*t_value
 
