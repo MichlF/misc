@@ -10,7 +10,7 @@ setup_logging()
 # for reading data
 #Configuration.create(hdx_site='prod', user_agent='A_Quick_Example', hdx_read_only=True)
 # for writing data
-#Configuration.create(hdx_site='stage', user_agent='A_Quick_Example', hdx_base_config_yaml="C:\\Users\Michl\\Documents\\GitHub\\misc\\HDX-HumanDataExchange\\.hdx_configuration.yml")
+#Configuration.create(hdx_site='stage', user_agent='A_Quick_Example', hdx_base_config_yaml="C:\\Users\Michl\\Documents\\GitHub\\private_keys\\HDX_site\\.hdx_configuration.yml")
 
 #dataset = Dataset.read_from_hdx('reliefweb-crisis-app-data')
 #print(dataset)
