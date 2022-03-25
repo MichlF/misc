@@ -23,7 +23,7 @@ def clusterbased_permutation(X1, X2, p_val=0.05, cl_p_val=0.05, paired=True, tai
     nr_perm (int): number of permutations
     mask (array): dim1 X dim2 array. Can be used to restrict cluster based test to a specific region. 
     conn (array): outlines which dim1 points are connected to other dim1 points. Usefull
-                              when doing a cluster based permutation test across electrodes 
+    when doing a cluster based permutation test across electrodes 
 
     Returns
     - - - -
